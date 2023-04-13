@@ -12,11 +12,19 @@ int Duracion; // entre 10 – 100
 int main()
 {
     srand(time(NULL));
-    int nTareas;
-    Tarea ** tareas,tareasR,tareasP;
+    int nTareas,menu;
+    Tarea ** tareas;
+    Tarea ** tareasR;
+    Tarea ** tareasP;
     puts("ingrese la cantidad de tareas a ralizar:");
     scanf("%d",&nTareas);
+
+
     tareas = malloc(sizeof(Tarea*)*nTareas);
+    tareasR = malloc(sizeof(Tarea*)*nTareas);
+
+
+
     for (int i = 0; i < nTareas; i++)
     {
         tareas[i] = malloc(sizeof(Tarea));
@@ -25,21 +33,37 @@ int main()
         tareas[i]->Descripcion = malloc(sizeof(char)*60);
         scanf("%s",tareas[i]->Descripcion);
         tareas[i]->Duracion = rand() % 91 + 10;
-
-
+        tareasR[i] = NULL;
     }
+      
     
+
+    //listar tareas
     for (int i = 0; i < nTareas; i++)
     {
+
         printf("id: %d\n",tareas[i]->TareaID);
         printf("descripcion: %s\n",tareas[i]->Descripcion);
         printf("duracion: %d\n",tareas[i]->Duracion);
-
-
+        puts("Seleccione 1 si la tarea fue realizada sino seleccione 0");
+        fflush(stdin);
+        scanf("%d",&menu);
+        if (menu == 1)
+        {
+            tareasR[i] = tareas[i];
+        } 
     }
 
-    
-
+    puts("tareas realizadas: ");
+    for (int i = 0; tareasR[i] != NULL; i++)
+    {
+        printf("id: %d\n",tareasR[i]->TareaID);
+        printf("descripcion: %s\n",tareasR[i]->Descripcion);
+        printf("duracion: %d\n",tareasR[i]->Duracion);
+        
+    }
+    fflush(stdin);
+   
 
 
 
