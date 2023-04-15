@@ -78,7 +78,7 @@ int main()
    puts("ingrese el id de la tarea realizada que desea buscar:");
    scanf("%d",&tareaid);
 
-   buscada = BuscarTarea(tareasR,nTareasR,tareaid);
+   buscada = BuscaTareaPorId(tareasR,nTareasR,tareaid);
    printf("\n\nTarea id: %d",tareaid);
    printf("\tdescripcion: %s\n", buscada.Descripcion);
    printf("\tduracion: %d\n", buscada.Duracion);
@@ -91,13 +91,12 @@ int main()
         free(tareasR[i]->Descripcion);
         free(tareasR[i]); 
     }
-    free(palabra);
     free(tareas);
     free(tareasR);
     return 0;
 }
 
-Tarea BuscarTarea(Tarea **tareas,int nTareas,int TareaID){
+Tarea BuscaTareaPorId(Tarea **tareas,int nTareas,int TareaID){
      Tarea tarea_no_encontrada = {0, "Tarea no encontrada", 0};
      for (int i = 0; i < nTareas; i++)
      {
@@ -111,7 +110,7 @@ Tarea BuscarTarea(Tarea **tareas,int nTareas,int TareaID){
      return tarea_no_encontrada;
 }
 
-Tarea BuscarTarea(Tarea **tareas,int nTareas,char *palabra){
+Tarea BuscaTareaPorPalabra(Tarea **tareas,int nTareas,char *palabra){
         Tarea noEncontrada= {0,"Tarea no encontrada",0};
         char *encontrado;
         for (int i = 0; i < nTareas; i++)
