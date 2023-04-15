@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
 struct{
 int TareaID; //Numerado en ciclo iterativo
@@ -8,11 +9,14 @@ char *Descripcion;
 int Duracion; // entre 10 – 100
 }typedef Tarea;
 
+Tarea BuscarTarea(Tarea **tareas,int nTareas,char *palabra);
 
 int main()
 {
     srand(time(NULL));
     int nTareas,menu,nTareasR=0;
+    char *palabra;
+    Tarea buscada;
     Tarea ** tareas;
     Tarea ** tareasR;
     puts("ingrese la cantidad de tareas a ralizar:");
@@ -71,6 +75,15 @@ int main()
     }
     fflush(stdin);
    
+   puts("ingrese una palabra clave para buscar una tarea realizada");
+   palabra = malloc(sizeof(char)*20);
+   scanf("%s",palabra);
+   fflush(stdin);
+
+   buscada = BuscarTarea(tareasR,nTareasR,palabra);
+    printf("\tid: %d\n", buscada.TareaID);
+    printf("\tdescripcion: %s\n", buscada.Descripcion);
+    printf("\tduracion: %d\n", buscada.Duracion);
 
 
     for (int i = 0; i < nTareas; i++)
@@ -80,7 +93,24 @@ int main()
         free(tareasR[i]->Descripcion);
         free(tareasR[i]); 
     }
+    free(palabra);
     free(tareas);
     free(tareasR);
     return 0;
+}
+
+Tarea BuscarTarea(Tarea **tareas,int nTareas,char *palabra){
+        Tarea noEncontrada= {0,"Tarea no encontrada",0};
+        char *encontrado;
+        for (int i = 0; i < nTareas; i++)
+        {
+            encontrado = strstr(tareas[i]->Descripcion,palabra);
+            if (encontrado != NULL)
+            {
+                return *(tareas[i]);
+            }
+            
+        }
+        return noEncontrada;
+
 }
