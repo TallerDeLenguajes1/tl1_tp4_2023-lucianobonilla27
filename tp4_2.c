@@ -15,12 +15,11 @@ struct Nodo *Siguiente;
 }typedef Tnodo;
 
 
-Tarea BuscaTareaPorId(Tarea **tareas,int nTareas,int TareaID);
-Tarea BuscaTareaPorPalabra(Tarea **tareas,int nTareas,char *palabra);
 Tnodo *crearListaVacia();
 Tnodo *insertarNodos(Tnodo * tareas,int nTareas);
 void mostrar(Tnodo * tareas);
 void liberarMemoria(Tnodo * tareas);
+void enlazarNodo(Tnodo * tareas, Tnodo * nueva);
 
 int main()
 {
@@ -36,7 +35,6 @@ int main()
     mostrar(tareas);
     
 
-    Tnodo *prev = NULL; // puntero al nodo anterior
    //listar tareas 
     while (tareas != NULL)
     {
@@ -47,8 +45,10 @@ int main()
         scanf("%d",&menu);
         if (menu == 1)
         {
+            tareas->Siguiente = tareasR;
             tareasR = tareas;
             tareas = tareas->Siguiente;
+     
         }else
         {
              tareas = tareas->Siguiente;
@@ -122,35 +122,13 @@ int main()
     return 0;
 }
 
-Tarea BuscaTareaPorId(Tarea **tareas,int nTareas,int TareaID){
-     Tarea tarea_no_encontrada = {0, "Tarea no encontrada", 0};
-     for (int i = 0; i < nTareas; i++)
-     {
-        if (tareas[i]->TareaID == TareaID)
-        {
-            return *(tareas[i]);
-        }
-        
-     }
-     printf("No se encontro la tarea de id= %d",TareaID);
-     return tarea_no_encontrada;
-}
-
-Tarea BuscaTareaPorPalabra(Tarea **tareas,int nTareas,char *palabra){
-        Tarea noEncontrada= {0,"Tarea no encontrada",0};
-        char *encontrado;
-        for (int i = 0; i < nTareas; i++)
-        {
-            encontrado = strstr(tareas[i]->Descripcion,palabra);
-            if (encontrado != NULL)
-            {
-                return *(tareas[i]);
-            }
-            
-        }
-        return noEncontrada;
+void enlazarNodo(Tnodo * tareas, Tnodo * nueva){
+     tareas->Siguiente = nueva;
+     nueva = tareas;
+     
 
 }
+
 
 Tnodo *crearListaVacia(){
     return NULL;
