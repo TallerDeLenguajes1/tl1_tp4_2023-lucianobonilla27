@@ -1,143 +1,183 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include <string.h>
+#include <time.h>
 
-struct{
-int TareaID; //Numerado en ciclo iterativo
-char *Descripcion;  
-int Duracion; // entre 10 – 100
-}typedef Tarea;
+typedef struct tarea {
+    int id;
+    char descripcion[60];
+    int duracion;
+} Tarea;
 
-struct Nodo{
-Tarea T;
-struct Nodo *Siguiente;
-}typedef Tnodo;
+typedef struct nodo {
+    Tarea tarea;
+    struct nodo* siguiente;
+} Nodo;
 
+void insertar(Nodo** cabeza, Tarea nueva_tarea);
 
-Tnodo *crearListaVacia();
-Tnodo **insertarNodos(Tnodo * tareas,int nTareas);
-void mostrar(Tnodo * tareas);
-void liberarMemoria(Tnodo * tareas);
-void enlazarNodo(Tnodo * tareas, Tnodo * nueva);
+void mostrar(Nodo* cabeza);
 
-int main()
-{
+void realizar_tarea(Nodo** pendientes, Nodo** realizadas, int tarea_id);
+
+void eliminarTarea(Nodo** cabeza,int id);
+
+int main() {
     srand(time(NULL));
-    int nTareas,menu,nTareasR=0,tareaid;
-    Tnodo * tareas;
-    Tnodo * tareasR;
-    puts("ingrese la cantidad de tareas a ralizar:");
-    scanf("%d",&nTareas);
-    tareas = crearListaVacia();
-    tareasR = crearListaVacia();
-    tareas = insertarNodos(tareas,nTareas);
-    mostrar(tareas);
-    
 
-    
-    
-Tnodo *prev = NULL; // puntero al nodo anterior
-while (tareas != NULL) {
-    printf("Tarea id: %d\n", tareas->T.TareaID);
-    printf("\tdescripcion: %s\n", tareas->T.Descripcion);
-    printf("\tduracion: %d\n", tareas->T.Duracion);
-    puts("Seleccione 1 si la tarea fue realizada, sino seleccione 0");
-    scanf("%d",&menu);
-    if (menu == 1) {
-        // agregar el nodo actual a la lista de tareas realizadas
-        if (tareasR == NULL) {
-            // si la lista está vacía, crear el primer nodo
-            tareasR = tareas;
-            prev = tareas;
-        } else {
-            // agregar el nodo al final de la lista
-            prev->Siguiente = tareas;
-            prev = prev->Siguiente;
-        }
-        // eliminar el nodo actual de la lista de tareas pendientes
-        Tnodo *temp = tareas;
-        tareas = tareas->Siguiente;
-        free(temp->T.Descripcion);
-        free(temp);
+    Nodo* pendientes = NULL;
+    Nodo* realizadas = NULL;
+
+    int n_tareas;
+    printf("Ingrese el numero de tareas: ");
+    scanf("%d", &n_tareas);
+
+    for (int i = 1; i <= n_tareas; i++) {
+        Tarea nueva_tarea;
+        nueva_tarea.id = i;
+
+        printf("Ingrese la descripcion de la tarea %d: ", i);
+        fflush(stdin);
+        gets(nueva_tarea.descripcion);
+        fflush(stdin);
+
+        nueva_tarea.duracion = rand() % 91 + 10;
+
+        insertar(&pendientes, nueva_tarea);
+    }
+
+    printf("\n");
+
+    int opcion;
+    do {
+        printf("Seleccione una opcion:\n");
+        printf("1. Mostrar tareas pendientes.\n");
+        printf("2. Mostrar tareas realizadas.\n");
+        printf("3. Realizar una tarea.\n");
+        printf("4. Borra una tarea pendiente.\n");
+        printf("5. Salir.\n");
+
+        scanf("%d", &opcion);
+
+        switch(opcion) {
+        case 1:
+        printf("TAREAS PENDIENTES\n");
+        mostrar(pendientes);
+        break;
+
+    case 2:
+        printf("TAREAS REALIZADAS\n");
+        mostrar(realizadas);
+        break;
+
+    case 3:
+        printf("Ingrese el ID de la tarea a realizar: ");
+        int tarea_id;
+        scanf("%d", &tarea_id);
+        realizar_tarea(&pendientes, &realizadas, tarea_id);
+        break;
+
+    case 4:
+        printf("Ingrese el ID de la tarea pendiente que desea borrar: ");
+        int tarea_id1;
+        scanf("%d", &tarea_id1);
+        eliminarTarea(&pendientes,tarea_id1);
+        break;    
+
+    case 5:
+        printf("Adios!\n");
+        break;
+
+    default:
+        printf("Opcion no valida.\n");
+        break;
+    }
+} while (opcion != 5);
+
+// Liberar memoria de las listas
+Nodo* actual = pendientes;
+while (actual != NULL) {
+    Nodo* siguiente = actual->siguiente;
+    free(actual);
+    actual = siguiente;
+}
+
+actual = realizadas;
+while (actual != NULL) {
+    Nodo* siguiente = actual->siguiente;
+    free(actual);
+    actual = siguiente;
+}
+
+return 0;
+}
+
+void insertar(Nodo** cabeza, Tarea nueva_tarea) {
+    Nodo* nuevo_nodo = malloc(sizeof(Nodo));
+    nuevo_nodo->tarea = nueva_tarea;
+    nuevo_nodo->siguiente = *cabeza;
+    *cabeza = nuevo_nodo;
+}
+           
+void mostrar(Nodo* cabeza) {
+    printf("Tareas:\n");
+    while (cabeza != NULL) {
+        printf("ID: %d\n", cabeza->tarea.id);
+        printf("Descripcion: %s\n", cabeza->tarea.descripcion);
+        printf("Duracion: %d\n\n", cabeza->tarea.duracion);
+        cabeza = cabeza->siguiente;
+    }
+}
+
+void realizar_tarea(Nodo** pendientes, Nodo** realizadas, int tarea_id) {
+    Nodo* actual = *pendientes;
+    Nodo* anterior = NULL;
+
+    while (actual != NULL && actual->tarea.id != tarea_id) {
+        anterior = actual;
+        actual = actual->siguiente;
+    }
+
+    if (actual == NULL) {
+        printf("La tarea con ID %d no existe.\n", tarea_id);
+        return;
+    }
+
+    if (anterior == NULL) {
+        *pendientes = actual->siguiente;
     } else {
-        // avanzar al siguiente nodo
-        prev = tareas;
-        tareas = tareas->Siguiente;
+        anterior->siguiente = actual->siguiente;
     }
-}
-    puts("/////tareas realizadas////////");
-    mostrar(tareasR);
 
-    puts("/////tareas pendientes////////");
-    mostrar(tareas);
+    actual->siguiente = *realizadas;
+    *realizadas = actual;
 
-    
-      
-   
-
-    
-    liberarMemoria(tareas);
-    liberarMemoria(tareasR);
-    return 0;
+    printf("La tarea con ID %d ha sido realizada.\n", tarea_id);
 }
 
-void enlazarNodo(Tnodo * tareas, Tnodo * nueva){
-     tareas->Siguiente = nueva;
-     nueva = tareas;
-     
+void eliminarTarea(Nodo** cabeza,int id){
+    Nodo * actual = *cabeza;
+    Nodo* anterior = NULL;
+   while (actual != NULL && actual->tarea.id != id) // recorremos la lista guardando el nodo actual y el anterior
+   {
+     anterior = actual;
+     actual = actual->siguiente;
 
-}
-
-
-Tnodo *crearListaVacia(){
-    return NULL;
-}
-
-Tnodo **insertarNodos(Tnodo * tareas,int nTareas){
-      Tarea tarea;
-      Tnodo *insertar;
-      
-      for (int i = 0; i < nTareas; i++)
-      {
-        insertar = malloc(sizeof(Tnodo));
-        tarea.TareaID = i+1;
-        printf("ingrese la descripcion de la tarea:\n");
-        fflush(stdin);
-        tarea.Descripcion = malloc(sizeof(char)*60);
-        gets(tarea.Descripcion);
-        tarea.Duracion = rand() % 91 + 10;
-        fflush(stdin);
-        insertar->T = tarea;
-        insertar->Siguiente = tareas;
-        tareas = insertar;
-      }
-      return tareas;
-}
-
-void mostrar(Tnodo * tareas){
-     while (tareas != NULL)
-     {
-        printf("\n\nTarea id: %d",tareas->T.TareaID);
-        printf("\n\tdescripcion: %s\n", tareas->T.Descripcion);
-        printf("\n\tduracion: %d\n", tareas->T.Duracion);
-        tareas = tareas->Siguiente;
-     }
-     
-
-
-}
-
-void liberarMemoria(Tnodo * tareas){
-    Tnodo *aux;
-     while (tareas != NULL)
+   }
+   if (actual == NULL) {
+        printf("La tarea con ID %d no existe.\n", id);
+        return;
+    }
+    if (anterior == NULL) // se encontro el id al principio de la lista
     {
-        free(tareas->T.Descripcion);
-        aux = tareas;
-        free(aux);
-        tareas = tareas->Siguiente;
+        actual = *cabeza;
+        (*cabeza) = (*cabeza)->siguiente;
+        free(actual);
 
-        
+    }else //se encontro el id en la medio de la lista
+    {
+        anterior->siguiente = actual->siguiente;
+        free(actual);
     }
-    
+    printf("La tarea con ID %d ha sido eliminada.\n", id);
 }
